@@ -8,8 +8,8 @@ const Mode = enum(u2) {
     register = 0b11,
 };
 
-const REG_byte = enum(u3) { AL = 0b000, CL = 0b001, DL = 0b010, BL = 0b011, AH = 0b100, CH = 0b101, DH = 0b110, BH = 0b111 };
-const REG_word = enum(u3) { AX = 0b000, CX = 0b001, DX = 0b010, BX = 0b011, SP = 0b100, BP = 0b101, SI = 0b110, DI = 0b111 };
+const REG_byte = enum(u3) { al = 0b000, cl = 0b001, dl = 0b010, bl = 0b011, ah = 0b100, ch = 0b101, dh = 0b110, bh = 0b111 };
+const REG_word = enum(u3) { ax = 0b000, cx = 0b001, dx = 0b010, bx = 0b011, sp = 0b100, bp = 0b101, si = 0b110, di = 0b111 };
 const Word = enum(u1) { byte = 0b0, word = 0b1 };
 const Instruction = packed struct(u16) {
     OpCode: OpCode,
@@ -63,24 +63,14 @@ fn regRM(mode: Mode, w: Word, address: u3) []const u8 {
 fn regAddr(w: Word, address: u3) []const u8 {
     return switch (w) {
         .byte => switch (@as(REG_byte, @enumFromInt(address))) {
-            .AL => "al",
-            .CL => "cl",
-            .DL => "dl",
-            .BL => "bl",
-            .AH => "ah",
-            .CH => "ch",
-            .DH => "dh",
-            .BH => "bh",
+            inline else => |variant| @tagName(variant),
         },
         .word => switch (@as(REG_word, @enumFromInt(address))) {
-            .AX => "ax",
-            .CX => "cx",
-            .DX => "dx",
-            .BX => "bx",
-            .SP => "sp",
-            .BP => "bp",
-            .SI => "si",
-            .DI => "di",
+            inline else => |variant| @tagName(variant),
         },
     };
+}
+
+test {
+    std.testing.refAllDecls(@This());
 }
