@@ -12,12 +12,12 @@ const REG_byte = enum(u3) { al = 0b000, cl = 0b001, dl = 0b010, bl = 0b011, ah =
 const REG_word = enum(u3) { ax = 0b000, cx = 0b001, dx = 0b010, bx = 0b011, sp = 0b100, bp = 0b101, si = 0b110, di = 0b111 };
 const Word = enum(u1) { byte = 0b0, word = 0b1 };
 const Instruction = packed struct(u16) {
-    OpCode: OpCode,
-    D: enum(u1) { to = 0b0, from = 0b1 },
     W: Word,
-    Mode: Mode,
-    Reg: u3,
+    D: enum(u1) { to = 0b0, from = 0b1 },
+    OpCode: OpCode,
     RM: u3,
+    Reg: u3,
+    Mode: Mode,
 };
 
 pub fn main() !void {
@@ -47,10 +47,12 @@ pub fn main() !void {
         _ = try writer.write(regAddr(instruction.W, instruction.Reg));
         _ = try writer.write(", ");
         _ = try writer.write(regRM(instruction.Mode, instruction.W, instruction.RM));
+        _ = try writer.write("\n");
     } else |err| switch (err) {
         error.EndOfStream => {},
         else => std.debug.print("Error reading instruction: {}\n", .{err}),
     }
+    try buf_writer.flush();
 }
 
 fn regRM(mode: Mode, w: Word, address: u3) []const u8 {
